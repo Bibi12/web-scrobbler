@@ -11,24 +11,33 @@
 /*** Configuration ***/
 
 // Additions to this div will trigger update
-BL_WATCHED_CONTAINER = "div.limit1line a#playerTitle";
+BL_WATCHED_CONTAINER = "#playerInfo #playerTitle";
 
 // Returns the currently playing artist name
 function BL_getArtist( ) {
-   var artist = $("div.limit1line span#playerArtists a.btn-link.ng-binding").text();
+   // Grab title element, since text portion can be truncated
+   var artist = $("#playerInfo #playerArtists").attr('title');
+   if( artist == undefined ) {
+      // Fall back to text portion if title attr is empty
+      artist = $("#playerInfo #playerArtists").text();
+   }
    return BL_cleanLabel( artist );
 }
 
 // Returns the currently playing track title
 // Grab title element, since text portion can be truncated
 function BL_getTrack( ) {
-   var track = $("div.limit1line a#playerTitle strong.ng-binding").text();
+   var track = $("#playerInfo #playerTitle").attr('title');
+   if( track == undefined ) {
+      // Fall back to text portion if title attr is empty
+      track = $("#playerInfo #playerTitle").text();
+   }
    return BL_cleanLabel( track );
 }
 
 // Returns the song length in seconds
 function BL_getDuration( ) {
-   var timeArr = $("span#playerDuration").text().split(":");
+   var timeArr = $("#playerInfo #playerDuration").text().split(":");
    return parseInt( timeArr[0] ) * 60 + parseInt( timeArr[1] );
 }
 
@@ -79,7 +88,7 @@ function BL_resetScrobbling() {
 $(function(){
    console.log("Blitzr scrobbling module starting up");
 
-   //BL_getTrack();
+   BL_getTrack();
    // Attach listener to "recently played" song list
    $(BL_WATCHED_CONTAINER).live('DOMSubtreeModified', function(e) {
       var nowPlaying = BL_getTrack() + " " + BL_getArtist();

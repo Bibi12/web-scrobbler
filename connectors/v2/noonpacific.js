@@ -1,10 +1,11 @@
+'use strict';
 
-Connector.playerSelector = '#playing';
+/* global Connector */
 
-Connector.artistSelector = '#playing h2';
+Connector.playerSelector = '.audio-player-wrapper';
 
-Connector.trackSelector = '#playing h3';
+Connector.artistSelector = '.audio-player-song p';
 
-Connector.isPlaying = function () {
-	return !$('#controls a[title=Play] i').is(':visible');
-};
+Connector.trackSelector = '.audio-player-artist p';
+
+Connector.playButtonSelector = '.fa-play';

@@ -39,8 +39,8 @@ define([
 		 */
 		this.onStateChanged = function(newState) {
 
-			// empty state has same semantics as reset; even if isPlaying, we have no data to use
-			var isEmptyState = (!newState.artist && !newState.track && !newState.uniqueID && !newState.duration);
+			// empty state has same semantics as reset; even if isPlaying, we don't have enough data to use
+			var isEmptyState = (!(newState.artist && newState.track) && !newState.uniqueID && !newState.duration);
 
 			if (isEmptyState) {
 				// throw away last song and reset state
@@ -51,7 +51,7 @@ define([
 
 				// warning for connector developer
 				if (newState.isPlaying) {
-					console.log('Tab ' + tabId + ': state from connector is missing any information about the playing track: ' + JSON.stringify(newState));
+					console.log('Tab ' + tabId + ': state from connector doesn\'t contain enough information about the playing track: ' + JSON.stringify(newState));
 				}
 
 				return;
@@ -112,6 +112,7 @@ define([
 				}
 
 				// start processing - result will trigger the listener
+				pageAction.setSongLoading(currentSong);
 				Pipeline.processSong(currentSong);
 			}
 		};
@@ -200,6 +201,8 @@ define([
 				// if the song is playing, mark it immediately; otherwise will be flagged in isPlaying binding
 				if (song.parsed.isPlaying) {
 					setSongNowPlaying(song);
+				} else {
+					pageAction.setSiteSupported();
 				}
 			} else {
 				pageAction.setSongNotRecognized();
@@ -294,8 +297,18 @@ define([
 
 				// re-send song to pipeline
 				if (data.artist || data.track) {
+					pageAction.setSongLoading(currentSong);
 					Pipeline.processSong(currentSong);
 				}
+			}
+		};
+
+		this.toggleLove = function(data, cb) {
+			if (currentSong !== null) {
+				LastFM.toggleLove(currentSong, data.shouldBeLoved, function() {
+					currentSong.metadata.attr('userloved', data.shouldBeLoved);
+					cb();
+				});
 			}
 		};
 
